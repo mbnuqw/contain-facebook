@@ -783,6 +783,24 @@ browser.runtime.onMessage.addListener(message => {
 // let callCount = 0;
 let contentScriptDelay = 999;
 
+<<<<<<< HEAD
+=======
+async function getUserSettings(setting) {
+  // Send request to background to parse URL via PSL
+  const localStorage = await browser.storage.local.get();
+
+  if (localStorage.settings) {
+    return localStorage.settings.badgeContent;
+  }
+
+  const backgroundResp = await browser.runtime.sendMessage({
+    message: "check-settings"
+  });
+
+  return backgroundResp;
+}
+
+>>>>>>> 952dc06 (Add logic to show/hide badges based on user settings, add button to reset settings back to default)
 async function contentScriptInit(resetSwitch, msg) {
   // Second arg is for debugging to see which contentScriptInit fires
   // Call count tracks number of times contentScriptInit has been called
@@ -793,11 +811,18 @@ async function contentScriptInit(resetSwitch, msg) {
     contentScriptSetTimeout();
   }
 
+  // Check user settings
+  const showBadges = await getUserSettings("badgeContent");
+  if (!showBadges) {
+    checkForTrackers = false;
+  }
+
   // Resource call is not in FBC/FB Domain and is a FB resource
   if (checkForTrackers && msg !== "other-domain") {
     await detectFacebookOnPage();
     screenUpdate();
   }
+
 }
 
 async function getRelayAddonEnabledFromBackground() {
@@ -857,14 +882,5 @@ function contentScriptSetTimeout() {
     return false;
   }
   setTimeout(contentScriptSetTimeout, contentScriptDelay);
+
 }
-
-(function(){
-
-  const backgroundResp = await browser.runtime.sendMessage({
-    message: "check-settings",
-    settings: "badgeContent"
-  });
-
-
-})();
