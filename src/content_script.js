@@ -670,7 +670,6 @@ function patternDetection(selectionArray, socialActionIntent){
       const itemUIDClassTarget = "js-" + itemUIDClassName;
       const socialAction = socialActionIntent;
       facebookDetectedElementsArr.push(itemUIDClassName);
-      // TODO: Add logic to gate drawing badges based on local storage (settings.badgeContent)
       addFacebookBadge(item, itemUIDClassTarget, socialAction);
       item.classList.add("fbc-has-badge");
       item.classList.add(itemUIDClassName);
@@ -790,7 +789,7 @@ async function getUserSettings(setting) {
   const localStorage = await browser.storage.local.get();
 
   if (localStorage.settings) {
-    return localStorage.settings.badgeContent;
+    return localStorage.settings.hideBadgeContent;
   }
 
   const backgroundResp = await browser.runtime.sendMessage({
@@ -812,8 +811,8 @@ async function contentScriptInit(resetSwitch, msg) {
   }
 
   // Check user settings
-  const showBadges = await getUserSettings("badgeContent");
-  if (!showBadges) {
+  const hideBadges = await getUserSettings("hideBadgeContent");
+  if (hideBadges) {
     checkForTrackers = false;
   }
 
