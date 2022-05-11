@@ -31,6 +31,7 @@ const LOGIN_PATTERN_DETECTION_SELECTORS = [
   "[data-oauthserver*='facebook']", // Stackoverflow
   ".puppeteer_test_login_button_facebook", // Quora
   "[href*='connect/facebook']", //Medium
+  "[href*='/signin/facebook']", //Imgur
   "[data-login-with-facebook='']", // etsy
   "[data-destination*='facebook']",
   ".fm-sns-item.facebook", // AliExpress
@@ -678,9 +679,13 @@ function patternDetection(selectionArray, socialActionIntent){
 }
 
 async function detectFacebookOnPage () {
+  console.log("XXX detectFacebookOnPage");
+  
   if (!checkForTrackers) {
     return;
   }
+
+  
 
   patternDetection(PASSIVE_SHARE_PATTERN_DETECTION_SELECTORS, "share-passive");
   patternDetection(SHARE_PATTERN_DETECTION_SELECTORS, "share");
@@ -782,13 +787,11 @@ browser.runtime.onMessage.addListener(message => {
 // let callCount = 0;
 let contentScriptDelay = 999;
 
-<<<<<<< HEAD
-=======
-async function getUserSettings(setting) {
+async function getUserSettings(setting = null) {
   // Send request to background to parse URL via PSL
   const localStorage = await browser.storage.local.get();
 
-  if (localStorage.settings) {
+  if (localStorage.settings && setting === "hideBadgeContent") {
     return localStorage.settings.hideBadgeContent;
   }
 
@@ -799,7 +802,6 @@ async function getUserSettings(setting) {
   return backgroundResp;
 }
 
->>>>>>> 952dc06 (Add logic to show/hide badges based on user settings, add button to reset settings back to default)
 async function contentScriptInit(resetSwitch, msg) {
   // Second arg is for debugging to see which contentScriptInit fires
   // Call count tracks number of times contentScriptInit has been called
@@ -818,6 +820,7 @@ async function contentScriptInit(resetSwitch, msg) {
 
   // Resource call is not in FBC/FB Domain and is a FB resource
   if (checkForTrackers && msg !== "other-domain") {
+    console.log("!!!");
     await detectFacebookOnPage();
     screenUpdate();
   }
